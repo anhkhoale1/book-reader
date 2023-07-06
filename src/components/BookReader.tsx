@@ -46,6 +46,11 @@ const BookReader = (props: BookProps) => {
     setIsPlaying(false);
   };
 
+  const goToBeginningOfChaper = (): void => {
+    setCurrentIndex(0);
+    setCurrentWord(book[0]);
+  }
+
   return (
     <Box
       sx={{
@@ -67,7 +72,7 @@ const BookReader = (props: BookProps) => {
         <Typography>{currentWord}</Typography>
       </Card>
       <ButtonGroup sx={{ display: "flex", justifyContent: "center" }}>
-        <IconButton>
+        <IconButton onClick={goToBeginningOfChaper}>
           <SkipPreviousIcon />
         </IconButton>
         {isPlaying ? (
