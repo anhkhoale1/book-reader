@@ -1,15 +1,38 @@
-import { Box, Container, Typography } from '@mui/material';
-import BookReader from './BookReader';
+import { Box, Container, Typography } from "@mui/material";
+import BookReader from "./BookReader";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 const Page = () => {
-  const chapter = "Năm 1998, ông được Nhà xuất bản Kim Đồng trao giải Nhà văn có sách bán chạy nhất. Năm 2003, bộ truyện nhiều tập Kính vạn hoa được Trung ương Đoàn Thanh niên Cộng sản Hồ Chí Minh trao huy chương Vì thế hệ trẻ và được Hội Nhà Văn Việt Nam trao giải thưởng. Đến nay ông đã xuất bản gần 100 tác phẩm và từ lâu đã trở thành nhà văn thân thiết của các bạn đọc nhỏ tuổi ở Việt Nam."
-  const book = chapter.split(" ");
+  const [chapter, setChapter] = useState(null);
+  const chapterId = "64a68a154a96f9cb5c366bd3"; // Initial chapterId
 
+  useEffect(() => {
+    const getChapterById = async (chapterId: string) => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/chapters/getOne/${chapterId}`
+        );
+        setChapter(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getChapterById(chapterId);
+  }, [chapterId]);
   return (
     <Container>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem' }}>
-        <Typography>Tên chương</Typography>
-        <BookReader book={book} />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: "1rem",
+        }}
+      >
+        <BookReader chapter={chapter} />
       </Box>
     </Container>
   );

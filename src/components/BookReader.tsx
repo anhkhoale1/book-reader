@@ -1,33 +1,55 @@
-import { Box, ButtonGroup, Card, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  Typography,
+  Slider,
+  Button,
+  IconButton,
+} from "@mui/material";
 import { useState, useEffect } from "react";
-import IconButton from "@mui/material/IconButton";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
-import PauseIcon from "@mui/icons-material/Pause";
 
-interface BookProps {
-  book: string[];
+interface ChapterProps {
+  chapter: any;
 }
 
-const BookReader = (props: BookProps) => {
-  const { book } = props;
-  const [currentWord, setCurrentWord] = useState(book[0]);
-  const [currentIndex, setCurrentIndex] = useState(1);
+const BookReader = (props: ChapterProps) => {
+  const { chapter } = props;
+  const chapterContent = chapter?.chaper_content || "";
+  const chapterName = chapter?.chapter_name;
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-
   const play = (): void => {
     setIsPlaying(true);
+  };
+
+  const pause = (): void => {
+    setIsPlaying(false);
+  };
+
+  const onNextWord = (): void => {
+    if (currentWordIndex < chapterContent.length - 1) {
+      setCurrentWordIndex((prevIndex) => prevIndex + 1);
+    }
+  };
+
+  const onPreviousWord = (): void => {
+    if (currentWordIndex > 0) {
+      setCurrentWordIndex((prevIndex) => prevIndex - 1);
+    }
   };
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
 
     const updateCurrentWord = (): void => {
-      if (currentIndex < book.length) {
-        setCurrentWord(book[currentIndex]);
-        setCurrentIndex((prevIndex) => prevIndex + 1);
+      if (currentWordIndex < chapterContent.length - 1) {
+        setCurrentWordIndex((prevIndex) => prevIndex + 1);
       } else {
+        setIsPlaying(false);
         clearInterval(intervalId!);
         intervalId = null;
       }
@@ -40,16 +62,7 @@ const BookReader = (props: BookProps) => {
     return () => {
       clearInterval(intervalId!);
     };
-  }, [isPlaying, currentIndex, book]);
-
-  const pause = (): void => {
-    setIsPlaying(false);
-  };
-
-  const goToBeginningOfChaper = (): void => {
-    setCurrentIndex(0);
-    setCurrentWord(book[0]);
-  }
+  }, [isPlaying, currentWordIndex, chapterContent]);
 
   return (
     <Box
@@ -58,8 +71,10 @@ const BookReader = (props: BookProps) => {
         gap: "1rem",
         flexDirection: "column",
         justifyContent: "center",
+        alignItems: "center",
       }}
     >
+      <Typography variant="h5">{chapterName}</Typography>
       <Card
         sx={{
           width: "200px",
@@ -69,10 +84,19 @@ const BookReader = (props: BookProps) => {
           display: "flex",
         }}
       >
-        <Typography>{currentWord}</Typography>
+        <Typography variant="h6">
+          {chapterContent.split(" ")[currentWordIndex]}
+        </Typography>
       </Card>
-      <ButtonGroup sx={{ display: "flex", justifyContent: "center" }}>
-        <IconButton onClick={goToBeginningOfChaper}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "1rem",
+        }}
+      >
+        <IconButton onClick={onPreviousWord}>
           <SkipPreviousIcon />
         </IconButton>
         {isPlaying ? (
@@ -84,10 +108,10 @@ const BookReader = (props: BookProps) => {
             <PlayArrowIcon />
           </IconButton>
         )}
-        <IconButton>
+        <IconButton onClick={onNextWord}>
           <SkipNextIcon />
         </IconButton>
-      </ButtonGroup>
+      </Box>
     </Box>
   );
 };
